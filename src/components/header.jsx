@@ -7,7 +7,7 @@ export default function Header() {
       <div className="flex justify-between items-center max-w-6xl mx-auto">
         <Link to='/'>
           <h1 className="font-bold text-sm sm:text-2xl">
-            <span className="text-purple-600">Fuel</span>
+            <span className="text-purple-700">Fuel</span>
             <span className="text-black">Estate</span>
           </h1>
         </Link>
@@ -37,7 +37,7 @@ export default function Header() {
           </li>
           <li className="">
             <Link to="/sign-in" className="hover:text-purple-600">
-              SignIn
+              Sign In
             </Link>
           </li>
         </ul>
