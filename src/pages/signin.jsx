@@ -1,12 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { signInStart, signInSuccess, signInFailure } from "../redux/user/userSlice";
 
 export default function SignIn() {
   const [formData, setFromData] = useState({});
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error, successMsg } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFromData({
@@ -17,7 +18,7 @@ export default function SignIn() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    dispatch(signInStart());
 
     try {
       const res = await fetch('/api/auth/signin', {
@@ -31,25 +32,21 @@ export default function SignIn() {
       const data = await res.json();
   
       if (data.success) {
-        setSuccess(data.message);
-        setError(null);
+        dispatch(signInSuccess(data));
         setTimeout(() => navigate('/'), 1500);
       } else {
-        setSuccess(null);
-        setError(data.message);
+        dispatch(signInFailure(data.message));
       }
     } catch(error) {
-      setError(error.message);
+      dispatch(signInFailure(error.message));
     }
-
-    setLoading(false);
   };
 
   return (
     <div className="max-w-lg mx-auto p-3">
       <h1 className="text-center text-3xl font-semibold py-7">Sign In</h1>
 
-      {success && <p className="bg-green-200 text-green-700 rounded-lg py-2 px-3 mb-4">{success}</p>}
+      {successMsg && <p className="bg-green-200 text-green-700 rounded-lg py-2 px-3 mb-4">{successMsg}</p>}
       {error && <p className="bg-red-200 text-red-700 rounded-lg py-2 px-3 mb-4">{error}</p>}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
