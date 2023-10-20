@@ -65,6 +65,7 @@ export default function SignUp() {
           className="border p-3 rounded-lg focus:outline-purple-600"
           placeholder="Full Name"
           onChange={handleChange}
+          required
         />
         <input
           type="number"
@@ -75,6 +76,7 @@ export default function SignUp() {
           className="border p-3 rounded-lg focus:outline-purple-600"
           placeholder="Phone Number"
           onChange={handleChange}
+          required
         />
         <input
           type="email"
@@ -83,6 +85,7 @@ export default function SignUp() {
           className="border p-3 rounded-lg focus:outline-purple-600"
           placeholder="Email Id"
           onChange={handleChange}
+          required
         />
         <input
           type="password"
@@ -91,6 +94,7 @@ export default function SignUp() {
           className="border p-3 rounded-lg focus:outline-purple-600"
           placeholder="Password"
           onChange={handleChange}
+          required
         />
 
         <button
