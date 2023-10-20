@@ -35,7 +35,7 @@ export default function SignUp() {
       if (data.success) {
         setSuccess(data.message);
         setError(null);
-        navigate('/sign-in')
+        setTimeout(() => navigate('/sign-in'), 1500);
       } else {
         setSuccess(null);
         setError(data.message);

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 export default function SignIn() {
@@ -6,6 +6,7 @@ export default function SignIn() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFromData({
@@ -32,6 +33,7 @@ export default function SignIn() {
       if (data.success) {
         setSuccess(data.message);
         setError(null);
+        setTimeout(() => navigate('/'), 1500);
       } else {
         setSuccess(null);
         setError(data.message);
