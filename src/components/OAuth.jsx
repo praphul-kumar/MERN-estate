@@ -27,7 +27,7 @@ export default function OAuth() {
           name: result.user.displayName,
           email: result.user.email,
           phone: result.user.phoneNumber,
-          photo: result.user.photoURL,
+          avatar: result.user.photoURL,
         }),
       });
 

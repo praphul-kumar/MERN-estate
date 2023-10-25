@@ -41,7 +41,7 @@ export default function Header() {
           <li className="">
             <Link to="/profile" className="hover:text-purple-600">
             {
-              (currentUser != null && currentUser.photo != null) ? <img src={currentUser.photo} alt="Profile" className="w-10 h-10 object-cover rounded-full" /> : 'Sign In'
+              (currentUser != null && currentUser.avatar != null) ? <img src={currentUser.avatar} alt="Profile" className="w-10 h-10 object-cover rounded-full" /> : 'Sign In'
             }
             </Link>
           </li>
