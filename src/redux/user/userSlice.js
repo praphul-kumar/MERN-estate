@@ -24,10 +24,22 @@ const userSlice = createSlice({
             state.error = action.payload;
             state.successMsg = null;
             state.loading = false;
+        },
+        updateMessage: (state, action) => {
+            if (action.payload != null) {
+                if (action.payload.type == 'success') {
+                    state.successMsg = action.payload.message;
+                } else if (action.payload.type == 'error') {
+                    state.error = action.payload.message;
+                }
+            } else {
+                state.successMsg = null;
+                state.error = null
+            }
         }
     }
 });
 
-export const { signInStart, signInSuccess, signInFailure }  = userSlice.actions;
+export const { signInStart, signInSuccess, signInFailure, updateMessage }  = userSlice.actions;
 
 export default userSlice.reducer;

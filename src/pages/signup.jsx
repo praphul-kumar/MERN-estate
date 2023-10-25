@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import OAuth from "../components/OAuth";
+import { useDispatch, useSelector } from "react-redux";
+import { signInStart, signInSuccess, signInFailure, updateMessage } from "../redux/user/userSlice";
 
 export default function SignUp() {
   const [formData, setFromData] = useState({});
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { loading, error, successMsg } = useSelector((state) => state.user);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -20,7 +22,7 @@ export default function SignUp() {
     console.log("Submitting Form Data.");
 
     try {
-      setLoading(true);
+      dispatch(signInStart());
 
       const res = await fetch("/api/auth/signup", {
         method: "POST",
@@ -33,19 +35,16 @@ export default function SignUp() {
       const data = await res.json();
 
       if (data.success) {
-        setSuccess(data.message);
-        setError(null);
-        setTimeout(() => navigate('/sign-in'), 1500);
+        dispatch(signInSuccess(data));
+        setTimeout(() => {
+          dispatch(updateMessage(null));
+          navigate('/sign-in')}, 1500);
       } else {
-        setSuccess(null);
-        setError(data.message);
+        dispatch(signInFailure(data.message));
       }
 
-      setLoading(false);
-
     } catch (error) {
-      setLoading(false);
-      setError(error.message);
+      dispatch(signInFailure(error.message));
     }
 
   };
@@ -54,7 +53,7 @@ export default function SignUp() {
     <div className="max-w-lg mx-auto p-3">
       <h1 className="text-center text-3xl font-semibold py-7">Sign Up</h1>
 
-      {success && <p className="bg-green-200 text-green-700 rounded-lg py-2 px-3 mb-4">{success}</p>}
+      {successMsg && <p className="bg-green-200 text-green-700 rounded-lg py-2 px-3 mb-4">{successMsg}</p>}
       {error && <p className="bg-red-200 text-red-700 rounded-lg py-2 px-3 mb-4">{error}</p>}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -104,6 +103,8 @@ export default function SignUp() {
         >
           {loading ? "Loading..." : "Sign Up"}
         </button>
+
+        <OAuth />
       </form>
 
       <div className="mt-4">

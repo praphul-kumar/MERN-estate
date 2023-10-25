@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { signInStart, signInSuccess, signInFailure } from "../redux/user/userSlice";
+import { signInStart, signInSuccess, signInFailure, updateMessage } from "../redux/user/userSlice";
+import OAuth from "../components/OAuth";
 
 export default function SignIn() {
   const [formData, setFromData] = useState({});
@@ -33,7 +34,10 @@ export default function SignIn() {
   
       if (data.success) {
         dispatch(signInSuccess(data));
-        setTimeout(() => navigate('/'), 1500);
+        setTimeout(() => {
+          dispatch(updateMessage(null));
+          navigate('/');
+        }, 1500);
       } else {
         dispatch(signInFailure(data.message));
       }
@@ -55,6 +59,8 @@ export default function SignIn() {
         <input type="password" name="password" id="password" className="border p-3 rounded-lg focus:outline-purple-600" placeholder="Password" onChange={handleChange} required/>
 
         <button disabled={loading} className="bg-purple-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80">{loading ? "Signing In..." : "Sign In"}</button>
+
+        <OAuth />
       </form>
 
       <div className="mt-4">
