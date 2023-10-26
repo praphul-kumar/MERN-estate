@@ -114,9 +114,24 @@ export default function Profile() {
     }
   }
 
-  const handleLogout = () => {
-    dispatch(deleteUserSuccess());
-    navigate('sign-in');
+  const handleSignOut = async () => {
+    dispatch(requestStart());
+    try {
+      const res = await fetch('/api/auth/signOut', {
+        method: "POST"
+      });
+  
+      const data = await res.json();
+  
+      if (data.success) {
+        dispatch(deleteUserSuccess());
+        navigate('sign-in');
+      } else {
+        dispatch(requestFailed(data.message));
+      } 
+    } catch(error) {
+      dispatch(requestFailed(error.message));
+    }
   }
 
   return (
@@ -212,7 +227,7 @@ export default function Profile() {
         <p>
           <span onClick={handleDeleteUser} className="text-red-700 pl-2 float-left cursor-pointer">Delete Account</span>
 
-          <span onClick={handleLogout} className="text-red-700 pl-2 float-right cursor-pointer">Sign Out</span>
+          <span onClick={handleSignOut} className="text-red-700 pl-2 float-right cursor-pointer">Sign Out</span>
         </p>
       </div>
     </div>
