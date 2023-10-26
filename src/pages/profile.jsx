@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
-import { requestStart, userRequestSuccess, requestFailed, updateMessage } from '../redux/user/userSlice.js'
-import { Link } from "react-router-dom";
+import { requestStart, userRequestSuccess, deleteUserSuccess, requestFailed, updateMessage } from '../redux/user/userSlice.js'
+import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { app } from "../firebase";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
@@ -10,6 +10,7 @@ export default function Profile() {
     (state) => state.user
   );
 
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const fileRef = useRef(null);
   
@@ -89,6 +90,33 @@ export default function Profile() {
     } catch (err) {
       dispatch(requestFailed(err.message));
     }
+  }
+
+  const handleDeleteUser = async (e) => {
+    e.preventDefault();
+
+    dispatch(requestStart());
+    try {
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        dispatch(deleteUserSuccess());
+        navigate('sign-in');
+      } else {
+        dispatch(requestFailed(data.message));
+      }
+    } catch (error) {
+      dispatch(requestFailed(error.message));
+    }
+  }
+
+  const handleLogout = () => {
+    dispatch(deleteUserSuccess());
+    navigate('sign-in');
   }
 
   return (
@@ -182,13 +210,9 @@ export default function Profile() {
 
       <div className="mt-4">
         <p>
-          <Link to={"/delete-account"}>
-            <span className="text-red-700 pl-2 float-left">Delete Account</span>
-          </Link>
+          <span onClick={handleDeleteUser} className="text-red-700 pl-2 float-left cursor-pointer">Delete Account</span>
 
-          <Link to={"/sign-out"}>
-            <span className="text-red-700 pl-2 float-right">Sign Out</span>
-          </Link>
+          <span onClick={handleLogout} className="text-red-700 pl-2 float-right cursor-pointer">Sign Out</span>
         </p>
       </div>
     </div>

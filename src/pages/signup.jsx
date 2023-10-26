@@ -38,7 +38,7 @@ export default function SignUp() {
         dispatch(userRequestSuccess(data));
         setTimeout(() => {
           dispatch(updateMessage(null));
-          navigate('/sign-in')}, 1500);
+          navigate('/')}, 1500);
       } else {
         dispatch(requestFailed(data.message));
       }
