@@ -1,4 +1,5 @@
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { requestStart, userRequestSuccess, requestFailed, updateMessage } from '../redux/user/userSlice.js'
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { app } from "../firebase";
@@ -8,6 +9,8 @@ export default function Profile() {
   const { currentUser, loading, error, successMsg } = useSelector(
     (state) => state.user
   );
+
+  const dispatch = useDispatch();
   const fileRef = useRef(null);
   
   const [formData, setFromData] = useState({});
@@ -32,8 +35,6 @@ export default function Profile() {
     uploadTask.on( "state_changed",
       (snapshot) => {
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-
-        console.log(`Upload is ${progress}% done`);
         setFileUploadPercent(Math.round(progress));
       },
       (error) => {
@@ -50,15 +51,45 @@ export default function Profile() {
     );
   };
 
-  // console.log(file);
-  console.log(formData);
-
   const handleChange = (e) => {
     setFromData({
       ...formData,
       [e.target.id]: e.target.value
     });
   };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+
+    dispatch(requestStart());
+    try {
+
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setFileUploadError(null);
+        setFileUploadPercent(null);
+
+        dispatch(userRequestSuccess(data));
+
+        setTimeout(() => dispatch(updateMessage(null)), 1500);
+
+      } else {
+        dispatch(requestFailed(data.message));
+      }
+
+    } catch (err) {
+      dispatch(requestFailed(err.message));
+    }
+  }
 
   return (
     <div className="max-w-lg mx-auto p-3">
@@ -75,7 +106,7 @@ export default function Profile() {
         </p>
       )}
 
-      <form className="flex flex-col gap-4">
+      <form onSubmit={handleFormSubmit} className="flex flex-col gap-4">
         <input
           onChange={(e) => setFile(e.target.files[0])}
           type="file"
@@ -86,26 +117,21 @@ export default function Profile() {
 
         <img
           onClick={() => fileRef.current.click()}
-          src={currentUser.avatar}
+          src={formData.avatar || currentUser.avatar}
           alt="Profile"
           className="rounded-full w-24 h-24 object-cover cursor-pointer mx-auto"
         />
 
-        {fileUploadPercent ? (
-          <p className="text-green-700 text-center">
-            File Uploaded {fileUploadPercent}%
-          </p>
-        ) : (
-          ""
-        )}
-
-        {fileUploadError ? (
-          <p className="text-red-700 text-center">
-            {fileUploadError}
-          </p>
-        ) : (
-          ""
-        )}
+        <p className="text-center">
+          {fileUploadError ? (
+            <span className="text-red-700">Error uploading Image (Image must be less than 2MB)</span>
+          ) : 
+          (fileUploadPercent > 0 && fileUploadPercent < 100) ?
+            <span className="text-slate-700">Image Uploaded: {fileUploadPercent}%</span> :
+          fileUploadPercent == 100 ? 
+            <span className="text-green-700">Image Uploaded Successfully.</span> : ""
+          }
+        </p>
 
         <input
           type="text"
@@ -114,7 +140,7 @@ export default function Profile() {
           className="border p-3 rounded-lg focus:outline-purple-600"
           placeholder="Full Name"
           onChange={handleChange}
-          value={currentUser.name}
+          defaultValue={currentUser.name}
           required
         />
         <input
@@ -124,7 +150,7 @@ export default function Profile() {
           className="border p-3 rounded-lg focus:outline-purple-600"
           placeholder="Phone No"
           onChange={handleChange}
-          value={currentUser.phone || ''}
+          defaultValue={currentUser.phone || ''}
           required
         />
         <input
@@ -133,9 +159,9 @@ export default function Profile() {
           id="email"
           className="border p-3 rounded-lg focus:outline-purple-600"
           placeholder="Email Id"
-          onChange={handleChange}
-          value={currentUser.email}
-          required
+          defaultValue={currentUser.email}
+          disabled
+          readOnly
         />
         <input
           type="password"
